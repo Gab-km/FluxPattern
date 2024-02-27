@@ -2,4 +2,4 @@
 
 module Dispatcher =
     [<CompiledName "Dispatch">]
-    let dispatch (action: Action) = Store.reduce action
+    let dispatch (action: Action) = Store.update action
