@@ -12,27 +12,24 @@ type internal Reducer() =
             | Subtract s -> value - s
 
 type internal IStore =
-    abstract State: int with get, set
+    inherit IPublisher
+    abstract GetState: int with get
     abstract Update: action: Action -> unit
 
 type internal StoreClass() =
-    let state = ref 0
+    let mutable state =  0
     let reducer: IReducer<int> = Reducer()
     let mutable subscribers: ISubscriber list = []
 
     interface IStore with
-        member this.State
-            with get () = state.Value
-            and set (value) =
-                if (state.Value <> value) then
-                    state.Value <- value
-                    (this :> IPublisher).NotifySubscribers()
+        member this.GetState = state
 
         member this.Update(action: Action) =
-            let store :IStore = this
-            store.State <- reducer.Reduce action state.Value
+            let reduced = reducer.Reduce action state            
+            if (state <> reduced) then
+                state <- reduced
+                (this :> IPublisher).NotifySubscribers()
 
-    interface IPublisher with
         member this.NotifySubscribers() =
             subscribers
             |> List.iter (fun sub -> sub.Update("State"))
@@ -47,18 +44,15 @@ type internal StoreClass() =
             subscribers <- List.rev filtered
 
 module Store =
-    let private singleton = StoreClass()
+    let private singleton: IStore = StoreClass()
 
-    let private store: IStore = singleton
-    let private publisher: IPublisher = singleton
-
-    let internal update = store.Update
+    let internal update = singleton.Update
 
     [<CompiledName "GetState">]
-    let state () = store.State
+    let state () = singleton.GetState
 
     [<CompiledName "Subscribe">]
-    let subscribe (s: ISubscriber) = publisher.Subscribe s
+    let subscribe (s: ISubscriber) = singleton.Subscribe s
 
     [<CompiledName "Unsubscribe">]
-    let unsubscribe (s: ISubscriber) = publisher.Unsubscribe s
+    let unsubscribe (s: ISubscriber) = singleton.Unsubscribe s
