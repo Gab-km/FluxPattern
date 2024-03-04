@@ -7,7 +7,6 @@ type internal Reducer() =
     interface IReducer<int> with
         member this.Reduce (action: Action) (value: int) =
             match action with
-            | Initial i -> i
             | Add a -> value + a
             | Subtract s -> value - s
 
@@ -17,7 +16,7 @@ type internal IStore =
     abstract Update: action: Action -> unit
 
 type internal StoreClass() =
-    let mutable state =  0
+    let mutable state = 0
     let reducer: IReducer<int> = Reducer()
     let mutable subscribers: ISubscriber list = []
 
@@ -25,7 +24,7 @@ type internal StoreClass() =
         member this.GetState = state
 
         member this.Update(action: Action) =
-            let reduced = reducer.Reduce action state            
+            let reduced = reducer.Reduce action state
             if (state <> reduced) then
                 state <- reduced
                 (this :> IPublisher).NotifySubscribers()

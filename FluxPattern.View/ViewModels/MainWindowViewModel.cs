@@ -56,8 +56,7 @@ namespace FluxPattern.View.ViewModels
         {
             // StateValue = 0;
             Store.Subscribe(this);
-            var action = ActionCreator.CreateInitial(0);
-            Dispatcher.Dispatch(action);
+            StateValue = Store.GetState();
         }
 
         public void Add()
