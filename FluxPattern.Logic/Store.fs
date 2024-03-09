@@ -10,9 +10,9 @@ type internal Reducer() =
             | Add a -> value + a
             | Subtract s -> value - s
 
-type internal IStore =
+type internal IStore<'T> =
     inherit IPublisher
-    abstract GetState: int with get
+    abstract GetState: 'T with get
     abstract Update: action: Action -> unit
 
 type internal StoreClass() =
@@ -20,18 +20,18 @@ type internal StoreClass() =
     let reducer: IReducer<int> = Reducer()
     let mutable subscribers: ISubscriber list = []
 
-    interface IStore with
+    interface IStore<int> with
         member this.GetState = state
 
         member this.Update(action: Action) =
             let reduced = reducer.Reduce action state
             if (state <> reduced) then
                 state <- reduced
-                (this :> IPublisher).NotifySubscribers()
+                (this :> IPublisher).NotifySubscribers(action.ToString())
 
-        member this.NotifySubscribers() =
+        member this.NotifySubscribers(context: string) =
             subscribers
-            |> List.iter (fun sub -> sub.Update("State"))
+            |> List.iter (fun sub -> sub.Update(context))
 
         member this.Subscribe(s: ISubscriber) = subscribers <- s :: subscribers
 
@@ -43,7 +43,7 @@ type internal StoreClass() =
             subscribers <- List.rev filtered
 
 module Store =
-    let private singleton: IStore = StoreClass()
+    let private singleton: IStore<int> = StoreClass()
 
     let internal update = singleton.Update
 

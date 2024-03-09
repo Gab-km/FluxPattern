@@ -3,6 +3,10 @@ namespace FluxPattern.Logic
 type Action =
     | Add of int
     | Subtract of int
+    override this.ToString() =
+        match this with
+        | Add _ -> "Add"
+        | Subtract _ -> "Subtract"
 
 
 module ActionCreator =

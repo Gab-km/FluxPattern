@@ -6,4 +6,4 @@ type ISubscriber =
 type IPublisher =
     abstract Subscribe: s: ISubscriber -> unit
     abstract Unsubscribe: s: ISubscriber -> unit
-    abstract NotifySubscribers: unit -> unit
+    abstract NotifySubscribers: context: string -> unit

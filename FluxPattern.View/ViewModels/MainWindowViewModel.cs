@@ -75,10 +75,7 @@ namespace FluxPattern.View.ViewModels
 
         public void Update(string context)
         {
-            if (context == "State")
-            {
-                StateValue = Store.GetState();
-            }
+            StateValue = Store.GetState();
         }
 
         protected override void Dispose(bool disposing)
